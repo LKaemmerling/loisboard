@@ -31,6 +31,7 @@ require_once(__DIR__."core/php_functions.php");
 # Datenbankverbindung
 require_once(__DIR__."/config/db.php"); 
 \Main\DB::init($db["host"], $db["user"], $db["pw"], $db["db"]);
+#\Main\PDB::init($db["host"], $db["user"], $db["pw"], $db["db"]);
 
 # Sprache initialisieren
 \Main\Language::init(); 
