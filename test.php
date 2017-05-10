@@ -8,8 +8,22 @@
 
 require_once __DIR__.'/app/bootstrap.php';
 use LoisBoard\Models\Accounts\Account;
+
+/**
+ * Hole mir alle Accounts
+ */
 $all_accounts = Account::all();
 dump($all_accounts);
+
+/**
+ * Hole mir einen Account
+ */
+$one_account = Account::find(1);
+dump($one_account);
+
+/**
+ * Beziehungen
+ */
 echo "<h3>Konversationen</h3>";
 $all_accounts->map(function(Account $account) {
   echo "Account: ".$account->username."<br /> Anzahl Konversationen:".$account->conversations->count()."<br /> SQL: ".$account->conversations()->toSql()."<hr>";
