@@ -1,0 +1,19 @@
+.lastxposts_row {
+    margin:0; 
+    padding-top:5px; 
+    padding-bottom:3px; 
+}
+
+.lastxposts_row:hover {
+    background:rgba(0,0,0,0.006); 
+}
+
+.lastxposts_row:after {
+    content:''; 
+    display:block;
+    clear:both; 
+}
+
+.lastxposts_row > .media-body {
+    padding-left:2px; 
+}
