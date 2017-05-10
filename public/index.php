@@ -25,10 +25,9 @@ require_once(__DIR__."/../core/php_functions.php");
 // Datenbankverbindung
 require_once(__DIR__."/../config/db.php"); 
 \Main\DB::init($db["host"], $db["user"], $db["pw"], $db["db"]);
-unset($db); 
 
 \Main\Language::init(); 
-\Main\Language::load(\Main\Language::$lang); 
+\Main\Language::load(\Main\Language::$lang, true); 
 
 \Main\Plugins::loadActivesPHP(); 
 
@@ -40,7 +39,6 @@ if(\Main\User\Control::$logged)
 
 
 // DEVELOPMENT
-//unset($_SESSION["errors"]); 
 if(isset($_SESSION["errors"]))
 	print_r($_SESSION["errors"]); 
 error_reporting(E_ALL); 
