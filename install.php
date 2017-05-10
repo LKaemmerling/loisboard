@@ -2,6 +2,9 @@
 /**
 * LoisBoard Installation 1.0 
 *
+* Führen Sie diese Datei auf ihren Webserver aus um die kostenlose Forensoftware LoisBoard zu installieren. Sie werden durch die Installation 
+* geführt und brauchen nur den Anweisungen am Bildschirm folge leisten. 
+*
 */
 session_start(); 
 header ('Content-type: text/html; charset=utf-8');
@@ -15,8 +18,7 @@ $html = Main::init($step);
 class Main 
 {
     public static $apiBaseUrl = "https://www.loisboard.at/"; 
-    public static $connKey = "345fdwf5W235"; 
-    public static $installVersion = "Beta002"; 
+    public static $installVersion = "Beta003"; 
 
     public static function init($step) 
     {
@@ -101,7 +103,7 @@ class Main
             $html .= "<h1>LoisBoard Installation &nbsp; Schritt 2: Dateien herunterladen</h1>";
             $html .= "<p>In diesem Schritt werden automatisch alle Dateien gedownloadet und eingerichtet.</p>";
 
-            $postdata = "connKey=".self::$connKey."&domain=test&func=downloadfull&version=" . self::$installVersion; 
+            $postdata = "func=downloadfull&version=" . self::$installVersion; 
             $ch = curl_init(self::$apiBaseUrl . "data/plugins/download/api.php"); 
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -294,8 +296,8 @@ class Main
 
     public static function testAPIconnection($domain = null) 
     {
-        $postdata = "connKey=".self::$connKey."&domain=test&func=test"; 
-        if($domain != null) $postdata = "connKey=".self::$connKey."&domain=$domain&func=test"; 
+        $postdata = "func=test"; 
+        if($domain != null) $postdata = "domain=$domain&func=test"; 
         $ch = curl_init(self::$apiBaseUrl . "data/plugins/download/api.php"); 
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -371,35 +373,6 @@ class DB {
     
     public static function escape($string) {
         return self::$db->real_escape_string($string);
-    }
-
-    public static function getPrimaryKeyColumn($table, $debug = false) {
-        $sql = "SHOW KEYS FROM $table WHERE key_name = 'PRIMARY'";
-
-        if ($debug == true) {
-            $_SESSION['debug'][] = __FUNCTION__ . ': $sql is <strong>' . $sql . '</strong>';
-        }
-        
-        $result = self::$db->query($sql);
-
-        while ($row = $result->fetch_assoc()) {
-            return $row['Column_name'];
-        }
-
-        if (self::$db->errno) {
-            $_SESSION['errors'][] = '<p>' . __FUNCTION__ . ' failed: ' . self::$db->error . '<br> statement was: <strong>' . $sql . '</strong></p>';
-        }
-
-        return false;
-    }
-
-    private static function generateColumnList($columns) {
-        if (is_array($columns)) {
-            return implode(', ', $columns);
-        } else {
-            return $columns;
-        }
-        
     }
 }
 
