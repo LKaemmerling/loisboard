@@ -44,7 +44,7 @@ class Plugins
 			if(is_dir($dir)) 
 			{
 				$file = $dir."/plugin.php";
-				require_once($file); 
+				require_once(__DIR__.$file); 
 			}
 		}
 	}

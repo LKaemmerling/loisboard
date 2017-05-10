@@ -1,46 +1,52 @@
 <?php
+/**
+* LoisBoard Forensoftware
+*
+* @version 0.3.0 
+* @author s-l (Sascha Loishandl) 
+* @license MIT License
+* @copyright 2017 Sascha Loishandl
+*/
 session_start(); 
 header ('Content-type: text/html; charset=utf-8');
 
 /*
-	Namespaces: 
-		\Main  (Klassen: DB, Language, Plugins   Daten: php_functions)
-		\Main\Board (Klassen: View, Control, Settings)
-		\Main\User (klassen: View, Control, Alert)
+Namespaces: 
+	\Main  (Klassen: DB, Language, Plugins   Daten: php_functions)
+	\Main\Board (Klassen: View, Control, Settings)
+	\Main\User (klassen: View, Control, Alert)
 */
 
-require_once("core/Plugins.php"); 
-require_once("core/DB.php"); 
-require_once("core/Language.php"); 
-require_once("core/UserControl.php"); 
-require_once("core/UserView.php");
-require_once("core/BoardSettings.php"); 
-require_once("core/BoardControl.php"); 
-require_once("core/BoardView.php");  
-require_once("core/AlertControl.php"); 
-require_once("core/php_functions.php"); 
+require_once(__DIR__."core/Plugins.php"); 
+require_once(__DIR__."core/DB.php"); 
+require_once(__DIR__."core/Language.php"); 
+require_once(__DIR__."core/UserControl.php"); 
+require_once(__DIR__."core/UserView.php");
+require_once(__DIR__."core/BoardSettings.php"); 
+require_once(__DIR__."core/BoardControl.php"); 
+require_once(__DIR__."core/BoardView.php");  
+require_once(__DIR__."core/AlertControl.php"); 
+require_once(__DIR__."core/php_functions.php"); 
 
-
-
-// Datenbankverbindung
+# Datenbankverbindung
 require_once(__DIR__."/config/db.php"); 
 \Main\DB::init($db["host"], $db["user"], $db["pw"], $db["db"]);
-unset($db); 
 
+# Sprache initialisieren
 \Main\Language::init(); 
 \Main\Language::load(\Main\Language::$lang); 
 
+# Plugins einbinden 
 \Main\Plugins::loadActivesPHP(); 
 
-\Main\Board\Settings::init(); 
-\Main\User\Control::init(); 
+\Main\Board\Settings::init(); # BoardSettings laden
+\Main\User\Control::init(); # Benutzer initialisieren (Login erkennen, Daten laden)
 
+# Automatische Mitgliedschaft aller Benutzergruppen mit aktivem Autogain 
 if(\Main\User\Control::$logged) 
 	\Main\User\Control::gainAutogainGroups(\Main\User\Control::$dbid); 
 
-
-// DEVELOPMENT
-//unset($_SESSION["errors"]); 
+# DEVELOPMENT
 if(isset($_SESSION["errors"]))
 	print_r($_SESSION["errors"]); 
 error_reporting(E_ALL); 
@@ -51,22 +57,22 @@ unset($_SESSION["errors"]);
 
 $html = ""; 
 $page_title = ""; 
-$page_title .= \Main\Plugins::hook("index.pageTitle.additional.beforeDefault", "");
-$page_title .= \Main\Board\Settings::setPageTitle(); 
-$page_title .= \Main\Plugins::hook("index.pageTitle.additional.afterDefault", "");
-$page_title = \Main\Plugins::hook("index.pageTitle.replace", $page_title);
+$page_title .= \Main\Plugins::hook("index.pageTitle.additional.beforeDefault", ""); # Plugin-Hook
+$page_title .= \Main\Board\Settings::setPageTitle(); # Seiten-Titel setzen 
+$page_title .= \Main\Plugins::hook("index.pageTitle.additional.afterDefault", ""); # Plugin-Hook
+$page_title = \Main\Plugins::hook("index.pageTitle.replace", $page_title); # Plugin-Hook
 
 $html .= "<div class='pageWrapper'>";
 
 $html .= \Main\Plugins::hook("index.pageTopLink.replace", "<a name='pageTop'></a>");
 
-$html .= "<div class='pageHeader container-fluid'>"; // pageHeader erstellen
+$html .= "<div class='pageHeader container-fluid'>"; # pageHeader erstellen
 
 	$html .= "<div class='pageHeaderControlContainer container-fluid'>";
 	
 	
 	
-		// SUCHE
+		// TODO: SUCHE
 		$html .= "<div class='pageSearchContainer container'>";
 		
 			$html .= "<div class='pageSearch'>";
@@ -86,7 +92,6 @@ $html .= "<div class='pageHeader container-fluid'>"; // pageHeader erstellen
 	$html .= "<div class='pageMenueContainer container-fluid'>"; //pageMenue Container erstellen
 		
 		$html .= "<div class='pageMenueBar container'>"; //pageMenue Bar
-			//$html .= "<div class='right'>".\Main\User\View::showMenueBar()."</div>";
 			$html .= \Main\Board\View::showMainMenue(); 
 		$html .= "</div>"; // pageMenue Bar 
 
@@ -96,9 +101,7 @@ $html .= "<div class='pageHeader container-fluid'>"; // pageHeader erstellen
 $html .= "</div>";  // pageHeader verlassen
 
 
-
-
-
+# pageContentContainer 
 $html .= "<div class='pageContentContainer container-fluid'>";
 
 	$html .= "<div class='pageContent container'>";
@@ -227,6 +230,7 @@ $html .= "<div class='pageContentContainer container-fluid'>";
 						$html .= \Main\Board\View::showDesignChoose(); 
 					}
 					
+					# Plugin-Seiten 
 					else if(\Main\Plugins::hook("index.showPage.$showPage.int", "0") == "1")
 					{
 						$html .= \Main\Plugins::hook("index.showPage.$showPage.txt", "");
@@ -237,11 +241,16 @@ $html .= "<div class='pageContentContainer container-fluid'>";
 			
 			
 			$html .= \Main\Plugins::hook("index.pageContentRowRight.div.start", "<div class='pageContentRowRight col-md-3'>");
+
+				# UCP 
 				$html .= \Main\Plugins::hook("index.contentRowRight.beforeUCP", "");
 				$html .= \Main\Plugins::hook("index.contentRowRight.UCP", \Main\User\View::showUserCp()); 
 				$html .= \Main\Plugins::hook("index.contentRowRight.afterUCP", "");
+
+				# Foren-Statistik 
 				if(\Main\Board\Settings::$settings["show_statistic_right"] == 1)
 					$html .= \Main\Plugins::hook("index.contentRowRight.Statistics", \Main\Board\View::showStatisticsRight());
+
 				$html .= \Main\Plugins::hook("index.contentRowRight.afterStatistics", "");
 				
 			$html .= \Main\Plugins::hook("index.pageContentRowRight.div.end", "</div>"); //pageContentRowRight
@@ -250,13 +259,14 @@ $html .= "<div class='pageContentContainer container-fluid'>";
 	
 	$html .= "</div>"; //pageContent
 	
+	# Design ändern 
 	$dstring = ""; 
 	if(\Main\Board\Settings::$settings["allow_change_design_footer"] && \Main\Board\Settings::$settings["allow_change_design"])
 		$dstring = "<a class='change-design-a' href='index.php?page=designs'>".\Main\Language::$txt["infos"]["footer_change_design"]."</a>"; 
 	
 	$html .= "<div class='pageFooter container'>";
 
-		// Datum Rechts
+		# Datum Rechts
 		$html .= "<div class='right'>
 			$dstring &nbsp;
 			<i class='fa fa-clock-o fa-lg'></i> ".\Main\toTimeDat(time())." &nbsp;
@@ -265,6 +275,7 @@ $html .= "<div class='pageContentContainer container-fluid'>";
 
 		$html .= \Main\Plugins::hook("index.pageFooter.beforeDoks", "");
 
+		# Datenschutzrichtlinien - Nutzungsbestimmungen - Impressum 
 		if(\Main\Board\Settings::$settings["dok_datenschutz"] == 1) 
 			$html .= "<a class='privacy-policy' href='index.php?page=privacy-policy'>".\Main\Language::$txt["infos"]["privacy_policy"]."</a>"; 
 		if(\Main\Board\Settings::$settings["dok_terms"] == 1) 
@@ -281,12 +292,14 @@ $html .= "</div>"; //pageContentContainer
 
 $html .= "</div>"; //pageWrapper
 
+# FOOTER 
 $html .= "<div class='sideFooter container-fluid'>";
-	$html .= "powered by <a target='_blank' href='http://www.loisboard.at'>LoisBoard</a>";
-	$html .= "<small>".\Main\User\Control::$design_footer."</small>"; 
+	$html .= "powered by <a target='_blank' href='https://www.loisboard.at'>LoisBoard</a>";
+	$html .= "<small>".\Main\User\Control::$design_footer."</small>"; # Footer-Text vom aktuellen Design 
 	$html .= \Main\Plugins::hook("index.sideFooter.afterLB", "");
 $html .= "</div>"; //sideFooter
 
+# Todo 
 $pageDescription = ""; 
 $pageKeywords = ""; 
 
