@@ -13,10 +13,13 @@ class DB {
             die("Mysql connection failed: ". self::$db->connect_error); 
         }
         self::$db->query("SET NAMES utf8;");
+
+        //self::$db = new \PDO('mysql:host='.$dbHost.';dbname='.$dbName.';charset=utf8mb4', $dbUser, $dbPassword);
+        //self::$db->query("SET NAMES utf8;"); 
     }
 	
 	public static function testConnection($dbHost, $dbUser, $dbPw, $dbName) {
-		$b = new mysqli($dbHost, $dbUser, $dbPw, $dbName); 
+		$b = new \mysqli($dbHost, $dbUser, $dbPw, $dbName); 
 		if($b->connect_errno) {
 			return false; 
 		}
@@ -65,6 +68,8 @@ class DB {
         self::$insertID = self::$db->insert_id;
     }
     
+    # Wird noch verwendet? 
+    # Entfernen! 
     public static function insert_passwort($uId, $passwort) {
         $sql = "UPDATE accounts SET passwort=MD5('".self::escape($passwort)."') WHERE id='".self::escape($uId)."'";
         self::$db->query($sql); 

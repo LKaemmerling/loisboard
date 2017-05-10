@@ -163,7 +163,7 @@ class Main
 
             if(isset($_POST["domain"])) # Wurde abgesendet
             {
-
+                # $input = var_dump($_POST);  ?
                 $input = array("domain" => $_POST["domain"],
                     "dbhost" => $_POST["dbhost"],
                     "dbuser" => $_POST["dbuser"],

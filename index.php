@@ -300,7 +300,7 @@ $html .= "<div class='sideFooter container-fluid'>";
 $html .= "</div>"; //sideFooter
 
 # Todo 
-$pageDescription = ""; 
+$pageDescription = "LoisBoard - DIE kostenlose Forensoftware."; 
 $pageKeywords = ""; 
 
 ?>
