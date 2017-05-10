@@ -17,16 +17,16 @@ Namespaces:
 	\Main\User (klassen: View, Control, Alert)
 */
 
-require_once(__DIR__."core/Plugins.php"); 
-require_once(__DIR__."core/DB.php"); 
-require_once(__DIR__."core/Language.php"); 
-require_once(__DIR__."core/UserControl.php"); 
-require_once(__DIR__."core/UserView.php");
-require_once(__DIR__."core/BoardSettings.php"); 
-require_once(__DIR__."core/BoardControl.php"); 
-require_once(__DIR__."core/BoardView.php");  
-require_once(__DIR__."core/AlertControl.php"); 
-require_once(__DIR__."core/php_functions.php"); 
+require_once(__DIR__."/core/Plugins.php");
+require_once(__DIR__."/core/DB.php");
+require_once(__DIR__."/core/Language.php");
+require_once(__DIR__."/core/UserControl.php");
+require_once(__DIR__."/core/UserView.php");
+require_once(__DIR__."/core/BoardSettings.php");
+require_once(__DIR__."/core/BoardControl.php");
+require_once(__DIR__."/core/BoardView.php");
+require_once(__DIR__."/core/AlertControl.php");
+require_once(__DIR__."/core/php_functions.php");
 
 # Datenbankverbindung
 require_once(__DIR__."/config/db.php"); 

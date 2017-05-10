@@ -1,0 +1,16 @@
+{
+    "name": "loisboard/loisboard",
+    "type": "project",
+    "require": {
+        "illuminate/database": "^5.4",
+        "illuminate/filesystem": "^5.4",
+        "symfony/var-dumper": "^3.2",
+        "illuminate/pagination": "^5.4",
+        "nesbot/carbon": "^1.22"
+    },
+    "autoload": {
+        "psr-4": {
+            "LoisBoard\\" : "app/"
+        }
+    }
+}

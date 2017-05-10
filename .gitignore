@@ -1,0 +1,6 @@
+/vendor/
+.idea/
+config/db.php
+media/upload/*
+!media/upload/Lbicon.png
+!media/upload/Loisboard_Logo1_white.png
