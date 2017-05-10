@@ -80,9 +80,7 @@ class Alert
         }
         /*
         $rst = \Main\PDB::select("alerts", "id", "user=? AND typ=? AND theme=? AND post=? AND gesehen='0'", null, null, array($user, $typ, $theme, $post));
-        # if(count($rst) == 0) 
-        # oder 
-        if($rst->rowCount() == 0) 
+        if(count($rst) == 0) 
         {
             \Main\PDB::insert("alerts", array("user" => $user, "typ" => $typ, "time" => time(), "theme" => $theme, "post" => $post));
             $insID = \Main\PDB::insertID(); 
@@ -105,7 +103,7 @@ class Alert
 
         /*
         $rst = \Main\PDB::select("alert_users", "id", "user=? AND alert=?", null, null, array($sender, $aid));
-        if($rst->rowCount() == 0) 
+        if(count($rst) == 0) 
             \Main\PDB::insert("alert_users", array("user" => $sender, "alert" => $aid));
         */
     }
@@ -127,7 +125,7 @@ class Alert
         }
         /*
         $rst = \Main\PDB::select("alerts", "id", "user=? AND id=?", null, null, array($uid, $alertid));
-        if($rst->rowCount() > 0) 
+        if(count($rst) > 0) 
         {
             \Main\PDB::update("alerts", $alertid, "gesehen='1'");
         }
@@ -155,7 +153,7 @@ class Alert
 
         /*
         $rst = \Main\PDB::select("alerts", "id", "user=? AND gesehen='0'", "id DESC", "100", array($uid));
-        $counter = $rst->rowCount(); 
+        $counter = count($rst); 
         */
         return $counter; 
     }

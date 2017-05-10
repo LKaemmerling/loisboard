@@ -10,7 +10,7 @@ class Control
 	* die Seite aufgerufen wurde. 
 	* 
 	* @author s-l 
-	* @version 0.0.2
+	* @version 0.0.3
 	*/
 	public static function hitThema($tId) 
 	{
@@ -23,6 +23,16 @@ class Control
 			\Main\DB::update("themen", $tId, array("hits" => $hits));
 			\Main\DB::insert("themes_hits", array("thema" => $tId, "user" => \Main\User\Control::$dbid, "time" => time()));
 		}
+		/*
+		$rst = \Main\PDB::select("themen", "hits", "id=?", null, null, array($tId));
+		if($count($rst) > 0) 
+		{
+			$hits = $rst[0]["hits"]; 
+			$hits++; 
+			\Main\PDB::update("themen", $tId, "hits=?", array($hits));
+			\Main\PDB::insert("themes_hits", array("thema" => $tId, "user" => \Main\User\Control::$dbid, "time" => time()));
+		}
+		*/
 	}
 
 	/**
@@ -31,7 +41,7 @@ class Control
 	* Zählt wie oft ein Thema bereits aufgerufen wurde und gibt die Zahl wieder. 
 	*
 	* @author s-l 
-	* @version 0.0.1 
+	* @version 0.0.2 
 	* @return int 
 	*/
 	public static function countThemaHits($tId) 
@@ -39,6 +49,14 @@ class Control
 		$rst = \Main\DB::select("themen", "hits", "id='".\Main\DB::escape($tId)."'");
 		$row = $rst->fetch_object(); 
 		$hits = $row->hits; 
+		/*
+		$hits = 0; 
+		$rst = \Main\PDB::select("themen", "hits", "id=?", null, null, array($tId));
+		if(count($rst) > 0) 
+		{
+			$hits = $rst[0]["hits"]; 
+		}
+		*/
 		return $hits; 
 	}
 
@@ -48,13 +66,18 @@ class Control
 	* Zählt alle Beiträge eines Themas und gibt an wie viele es sind. 
 	* 
 	* @author s-l 
-	* @version 0.0.1 
+	* @version 0.0.2 
 	* @return int 
 	*/
 	public static function countThemaPosts($tId) 
 	{
 		$rst = \Main\DB::select("posts", "id", "thema='".\Main\DB::escape($tId)."'");
-		return $rst->num_rows; 
+		$count = $rst->num_rows; 
+		/*
+		$rst = \Main\PDB::select("posts", "id", "thema=?", null, null, array($tId));
+		$count = count($rst); 
+		*/
+		return $count; 
 	}
 	
 	/**
@@ -62,7 +85,7 @@ class Control
 	*
 	* Zählt wie viele Beiträge von dem angegebenen Thema noch (für den Benutzer) ungelesen sind und gibt die Anzahl zurück. 
 	*
-	* @version 0.1.0 
+	* @version 0.1.1
 	* @author s-l 
 	* @return int 
 	*/
@@ -79,6 +102,14 @@ class Control
 			$row = $rst->fetch_object(); 
 			$lastUserTime = $row->stamp; 
 		}
+
+		/*
+		$rst = \Main\PDB::select("themes_seen", "stamp", "user=? AND thema=?", null, null, array(\Main\User\Control::$dbid, $tId));
+		if(count($rst) > 0) 
+		{
+			$lastUserTime = $rst[0]["stamp"]; 
+		}
+		*/
 			
 			
 		$rst = \Main\DB::select("posts", "startTime, lastEditTime", "thema='".\Main\DB::escape($tId)."'");
@@ -90,6 +121,18 @@ class Control
 			if($startTime > $lastUserTime && $startTime > ($nowtime-(86400 * 4))) $unseen ++; 
 			else if($lastEditTime > $lastUserTime && $lastEditTime > ($nowtime-(86400 * 4))) $unseen ++; 
 		}
+
+		/*
+		$rst = \Main\PDB::select("posts", "startTime, lastEditTime", "thema=?", null, null, array($tId));
+		foreach($rst as $row) 
+		{
+			$startTime = $row["startTime"]; 
+			$lastEditTime = $row["lastEditTime"]; 
+
+			if($startTime > $lastUserTime && $startTime > ($nowtime-(86400 * 4))) $unseen ++; 
+			else if($lastEditTime > $lastUserTime && $lastEditTime > ($nowtime-(86400 * 4))) $unseen ++; 
+		}
+		*/
 			
 		
 		return $unseen; 
@@ -100,7 +143,7 @@ class Control
 	*
 	* Diese Funktion zählt die (für den Benutzer) ungelesenen Beiträge einer Kategorie und gibt die Anzahl zurück. 
 	*
-	* @version 0.1.0 
+	* @version 0.1.1
 	* @author s-l 
 	* @return int 
 	*/
@@ -126,6 +169,24 @@ class Control
 			
 			if($lastChange > $lastUserTime && $lastChange > ($nowtime-(86400 * 4))) $unseen ++; 
 		}
+
+		/*
+		$rst = \Main\PDB::select("themen", "id, lastChange", "kategorie=?", null, null, array($kId));
+		foreach($rst as $row) 
+		{
+			$lastChange = $row["lastChange"]; 
+			$tId = $row["id"]; 
+
+			$lastUserTime = 0; 
+			$result = \Main\PDB::select("themes_seen", "stamp", "user=? AND thema=?", null, null, array(\Main\User\Control::$dbid, $tId));
+			if(count($result) > 0) 
+			{
+				$lastUserTime = $result[0]["stamp"]; 
+			}
+
+			if($lastChange > $lastUserTime && $lastChange > ($nowtime-(86400 * 4))) $unseen ++; 
+		}
+		*/
 		
 		return $unseen; 
 	}
@@ -136,13 +197,18 @@ class Control
 	* Überprüft ob der angegebene Tag in der angegebenen Kategorie verwendet werden darf. 
 	*
 	* @author s-l 
-	* @version 0.0.1 
+	* @version 0.0.2
 	* @return bool 
 	*/
 	public static function TagAvailableInKategory($tag, $k) 
 	{
 		$rst = \Main\DB::select("tags_foren", "kategory", "tag='" . \Main\DB::escape($tag) . "'");
 		if($rst->num_rows == 0) return true; 
+
+		/*
+		$rst = \Main\PDB::select("tags_foren", "kategory", "tag=?", null, null, array($tag));
+		if(count($rst) == 0) return true; 
+		*/
 		
 		$available = false; 
 		
@@ -151,7 +217,15 @@ class Control
 			$tf = array("kategory" => $row->kategory);	
 			if($tf["kategory"] == $k) 	
 				$available = true; 
-		}		
+		}	
+		/*
+		foreach($rst as $row) 
+		{
+			$tf = $row["kategory"]; 
+			if($tf == $k) 
+				$available = true; 
+		}
+		*/	
 			
 		if(!$available) 
 		{
@@ -164,6 +238,16 @@ class Control
 				$available = self::TagAvailableInKategory($tag, $kat["kategorie"]); 
 			else if($kat["forum"] != 0) 
 				$available = self::TagAvailableInForum($tag, $kat["forum"]); 
+
+			/*
+			$result = \Main\PDB::select("kategorien", "kategorie, forum", "id=?", null, null, array($k));
+			$kat = array("kategorie" => $result[0]["kategorie"],
+						"forum" => $result[0]["forum"]);
+			if($kat["kategorie"] != 0) 
+				$available = self::TagAvailableInKategory($tag, $kat["kategorie"]); 
+			else if($kat["forum"] != 0) 
+				$available = self::TagAvailableInForum($tag, $kat["forum"]); 
+			*/
 		}
 		
 		return $available; 
@@ -175,13 +259,17 @@ class Control
 	* Überprüft ob der angegebene Tag in dem angegebenen Forum verwendet werden darf. 
 	*
 	* @author s-l 
-	* @version 0.0.1 
+	* @version 0.0.3
 	* @return bool 
 	*/	
 	public static function TagAvailableInForum($tag, $f)
 	{
 		$rst = \Main\DB::select("tags_foren", "forum", "tag='" . \Main\DB::escape($tag) . "'");
 		if($rst->num_rows == 0) return true; 
+		/*
+		$rst = \Main\PDB::select("tags_foren", "forum", "tag=?", null, null, array($tag));
+		if(count($rst) == 0) return true; 
+		*/
 		
 		$available = false; 
 		
@@ -191,6 +279,14 @@ class Control
 			if($f == $tf) 
 				$available = true; 
 		}
+		/*
+		foreach($rst as $row) 
+		{
+			$tf = $row["forum"]; 
+			if($tf == $f) 
+				$available = true; 
+		}
+		*/
 			
 		return $available; 
 	}
@@ -201,13 +297,18 @@ class Control
 	* Überprüft ob der angegebene Tag von dem Benutzer verwendet werden darf 
 	*
 	* @author s-l 
-	* @version 0.0.1 
+	* @version 0.0.2
 	* @return bool 
 	*/	
 	public static function TagAvailableForUser($tag) 
 	{
 		$rst = \Main\DB::select("tags_gruppen", "gruppe", "tag='".\Main\DB::escape($tag)."'");
 		if($rst->num_rows == 0) return true; 
+
+		/*
+		$rst = \Main\PDB::select("tags_gruppen", "gruppe", "tag=?", null, null, array($tag));
+		if(count($rst) == 0) return true; 
+		*/
 		
 		$available = false; 
 		
@@ -217,6 +318,15 @@ class Control
 			if(\Main\User\Control::IsUserInGruppe(\Main\User\Control::$dbid, $gruppe)) 
 				$available = true; 
 		}
+		/*
+		foreach($rst as $row) 
+		{
+			if($available) break; 
+			$gruppe = $row["gruppe"]; 
+			if(\Main\User\Control::IsUserInGruppe(\Main\User\Control::$dbid, $gruppe)) 
+				$available = true; 
+		}
+		*/
 		
 		return $available; 
 	}
@@ -234,6 +344,18 @@ class Control
 					$count++; 
 			}
 		}
+		/*
+		$rst = \Main\PDB::select("tags", "id", "useable='1' AND typ='0'");
+		foreach($rst as $row) 
+		{
+			$tag = $row["id"]; 
+			if(self::TagAvailableInKategory($tag, $kid))
+			{
+				if(self::TagAvailableForUser($tag)) 
+					$count++; 
+			}
+		}
+		*/
 		return $count; 
 	}
 	
@@ -250,10 +372,22 @@ class Control
 					$count++; 
 			}
 		}
+		/*
+		$rst = \Main\PDB::select("tags", "id", "typ='1'");
+		foreach($rst as $row) 
+		{
+			$tag = $row["id"]; 
+			if(self::TagAvailableInKategory($tag, $kid)) 
+			{
+				if(self::TagAvailableForUser($tag)) 
+					$count++; 
+			}
+		}
+		*/
 		return $count; 
 	}
 	
-	public static function listTagOptionsForKategory($kid) 
+	public static function listTagOptionsForKategory($kid) // PDO: Last
 	{
 		$html = ""; 
 
@@ -270,6 +404,22 @@ class Control
 				}
 			}
 		}
+
+		/*
+		$rst = \Main\PDB::select("tags", "id, name", "useable='1' AND typ='0'");
+		foreach($rst as $row) 
+		{
+			$tag = array("id" => $row["id"],
+						"name" => $row["name"]);
+			if(self::TagAvailableInKategory($tag["id"], $kid)) 
+			{
+				if(self::TagAvailableForUser($tag["id"]))
+				{
+					$html .= "<option value='".$tag["id"]."'>".htmlspecialchars($tag["name"])."</option>";
+				}
+			}
+		}
+		*/	
 
 		return $html; 
 	}
